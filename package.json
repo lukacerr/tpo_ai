@@ -1,0 +1,28 @@
+{
+  "name": "tpo_ai",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "dev": "docker compose up",
+    "devd": "docker compose up -d",
+    "down": "docker compose down",
+    "stop": "docker compose stop",
+    "db:mig": "npx prisma migrate dev --name generated",
+    "db:push": "npx prisma db push --accept-data-loss",
+    "db:gen": "npx prisma generate"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "workspaces": [
+    "api",
+    "web"
+  ],
+  "devDependencies": {
+    "prisma": "^5.3.1"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.3.1",
+    "@tpoai/data-commons": "file:./prisma/client"
+  }
+}
