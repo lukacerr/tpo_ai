@@ -29,13 +29,13 @@ services:
     volumes:
       - ./api:/app/api
       - ./prisma:/app/prisma
-  # TODO: web
-  # depends_on:
-  # - api
-  # build: ./web
-  # env_file: .env
-  # ports:
-  # - ${VITE_PORT}:${VITE_PORT}
-  # volumes:
-  # - ./web:/app/web
-  # - ./prisma:/app/prisma
+  web:
+    depends_on:
+      - api
+    build: ./web
+    env_file: .env
+    ports:
+      - ${VITE_PORT}:${VITE_PORT}
+    volumes:
+      - ./web:/app/web
+      - ./prisma:/app/prisma

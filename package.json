@@ -1,18 +1,19 @@
 {
   "name": "tpo_ai",
   "version": "1.0.0",
-  "description": "",
+  "description": "TPO de Aplicaciones interactivas, Grupo 3 (martes & mañana)",
   "scripts": {
     "dev": "docker compose up",
     "devd": "docker compose up -d",
     "down": "docker compose down",
     "stop": "docker compose stop",
+    "pref": "docker start tpoai-data_commons-1",
     "db:mig": "npx prisma migrate dev --name generated",
     "db:push": "npx prisma db push --accept-data-loss",
     "db:gen": "npx prisma generate"
   },
   "keywords": [],
-  "author": "",
+  "author": "Grupo 3 (2023 2do cuat. martes mañana)",
   "license": "ISC",
   "workspaces": [
     "api",
