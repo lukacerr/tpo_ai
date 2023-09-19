@@ -6,6 +6,7 @@
 - González Francisco Ezequiel
 - Caceres Augusto
 - Monti Nahuel Matías
+- Gómez José Francisco
 
 ### Consigna
 
@@ -41,6 +42,6 @@ _La estructura está construida en el archivo [schema.prisma](./prisma/schema.pr
 npm run pref
 ```
 
-## Instancia de producción & deployment
+## Deployment & instancia release
 
 TODO
