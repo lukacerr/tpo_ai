@@ -41,7 +41,3 @@ _La estructura está construida en el archivo [schema.prisma](./prisma/schema.pr
 ```
 npm run pref
 ```
-
-## Deployment & instancia release
-
-TODO
