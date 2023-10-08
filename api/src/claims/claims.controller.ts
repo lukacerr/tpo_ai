@@ -7,12 +7,14 @@ import {
   Delete,
   Patch,
   Query,
+  UploadedFiles,
 } from '@nestjs/common';
 import { ClaimsService } from './claims.service';
 import { Prisma, User } from '@tpoai/data-commons';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Private } from 'users/auth/private.decorator';
 import { ReqUser } from 'users/auth/req-user.decorator';
+import { FilesReception } from 'utils/files-reception.decorator';
 
 @ApiTags('Reclamos')
 @Controller('claims')
@@ -20,17 +22,15 @@ export class ClaimsController {
   constructor(private readonly claimsService: ClaimsService) {}
 
   @ApiOperation({ summary: '[Solo users] Crear un nuevo reclamo' })
+  @FilesReception({ maxCount: 10 })
   @Private()
   @Post()
-  create(@Body() data: Prisma.ClaimUncheckedCreateInput) {
+  create(
+    @Body() data: Prisma.ClaimUncheckedCreateInput,
+    @UploadedFiles() files: Array<Express.Multer.File>,
+  ) {
+    data.multimedia = files.map((f) => f.filename);
     return this.claimsService.create(data);
-  }
-
-  @ApiOperation({ summary: '[Solo admins] Ver todos los reclamos' })
-  @Private({ adminOnly: true })
-  @Get('all')
-  findAll() {
-    return this.claimsService.findAll();
   }
 
   @ApiOperation({ summary: '[Solo users] Ver reclamos donde estás' })
@@ -38,6 +38,13 @@ export class ClaimsController {
   @Get()
   findMany(@Query() query: Prisma.ClaimWhereInput, @ReqUser() user: User) {
     return this.claimsService.findMany(user, query);
+  }
+
+  @ApiOperation({ summary: '[Solo admins] Ver todos los reclamos' })
+  @Private({ adminOnly: true })
+  @Get('all')
+  findAll() {
+    return this.claimsService.findAll();
   }
 
   @ApiOperation({ summary: '[Solo users] Ver detalles de un reclamo' })

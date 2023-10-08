@@ -7,10 +7,10 @@ node_modules
 .DS_Store
 *.local
 
-# DB VOLUMES & GENERATIONS
+# DATA, VOLUMES & GENERATIONS
 db_data/
 prisma/client/
-
+api/public/
 
 # IDEs & EDITORS
 .idea

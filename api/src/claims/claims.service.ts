@@ -34,7 +34,14 @@ export class ClaimsService {
 
   create(data: Prisma.ClaimUncheckedCreateInput) {
     this.validateUserOwnership(data);
-    return this.prisma.claim.create({ data });
+    return this.prisma.claim.create({
+      data: {
+        ...data,
+        userId: Number(data.userId),
+        unitId: Number(data.unitId),
+        amenityId: Number(data.amenityId),
+      },
+    });
   }
 
   findAll() {
