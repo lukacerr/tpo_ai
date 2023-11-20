@@ -1,6 +1,7 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { Prisma, User } from '@tpoai/data-commons';
 import { PrismaService } from 'configuration/database/prisma.service';
+import { UnitHasUser } from 'utils/decorators/user-on-units.operators';
 
 @Injectable()
 export class ClaimsService {
@@ -8,8 +9,12 @@ export class ClaimsService {
 
   private userOrClauseOwnership(userId: number) {
     return [
-      { unit: { userId } },
-      { amenity: { Building: { units: { some: { userId } } } } },
+      { unit: UnitHasUser(userId) },
+      {
+        amenity: {
+          Building: { units: { some: UnitHasUser(userId) } },
+        },
+      },
     ];
   }
 

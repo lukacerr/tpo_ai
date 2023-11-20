@@ -1,8 +1,10 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Post, Body, Get } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { Prisma } from '@tpoai/data-commons';
+import { Prisma, User } from '@tpoai/data-commons';
 import { AuthService } from './auth/auth.service';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { Private } from './auth/private.decorator';
+import { ReqUser } from './auth/req-user.decorator';
 
 @ApiTags('Usuarios')
 @Controller('users')
@@ -18,7 +20,15 @@ export class UsersController {
     return this.authService.logIn(data.username, data.password);
   }
 
+  @ApiOperation({ summary: 'Obtener información del usuario actual' })
+  @Private()
+  @Get()
+  find(@ReqUser() user: User) {
+    return user;
+  }
+
   @ApiOperation({ summary: 'Registrar un nuevo usuario' })
+  // @Private({ adminOnly: true })
   @Post('register')
   register(@Body() data: Prisma.UserCreateInput) {
     return this.usersService.register(data);

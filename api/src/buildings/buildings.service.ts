@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma, User } from '@tpoai/data-commons';
 import { PrismaService } from 'configuration/database/prisma.service';
+import { UnitHasUser } from 'utils/decorators/user-on-units.operators';
 
 @Injectable()
 export class BuildingsService {
@@ -12,15 +13,21 @@ export class BuildingsService {
 
   findMany(user: User) {
     return this.prisma.building.findMany({
-      where: user.isAdmin ? {} : { units: { some: { userId: user.id } } },
-      include: { units: { where: { userId: user.id } }, amenities: true },
+      where: user.isAdmin ? {} : { units: { some: UnitHasUser(user.id) } },
+      include: {
+        units: user.isAdmin || { where: UnitHasUser(user.id) },
+        amenities: true,
+      },
     });
   }
 
   findOne(id: number) {
     return this.prisma.building.findUnique({
       where: { id },
-      include: { units: { include: { User: true } }, amenities: true },
+      include: {
+        units: { include: { users: { include: { User: true } } } },
+        amenities: true,
+      },
     });
   }
 

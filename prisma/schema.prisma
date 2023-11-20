@@ -8,21 +8,30 @@ datasource db {
   url      = env("API_DB_URL")
 }
 
-enum UnitCondition {
-  AVAILABLE
+model Unit {
+  id         Int               @id @default(autoincrement())
+  Building   Building          @relation(fields: [buildingId], references: [id], onDelete: Cascade)
+  buildingId Int
+  users      UsersOnUnits[]
+  condition  UnitUserCondition
+  code       String
+  claims     Claim[]
+}
+
+enum UnitUserCondition {
   RENTED
   OWNED
 }
 
-model Unit {
-  id         Int           @id @default(autoincrement())
-  Building   Building      @relation(fields: [buildingId], references: [id], onDelete: Cascade)
-  buildingId Int
-  User       User?         @relation(fields: [userId], references: [id])
-  userId     Int?
-  condition  UnitCondition
-  code       String
-  claims     Claim[]
+model UsersOnUnits {
+  Unit       Unit              @relation(fields: [unitId], references: [id])
+  unitId     Int
+  User       User              @relation(fields: [userId], references: [id])
+  userId     Int
+  condition  UnitUserCondition
+  assignedAt DateTime          @default(now())
+
+  @@id([unitId, userId])
 }
 
 model Amenity {
@@ -43,13 +52,13 @@ model Building {
 }
 
 model User {
-  id       Int     @id @default(autoincrement())
-  username String  @unique
+  id       Int            @id @default(autoincrement())
+  username String         @unique
   password String
   name     String?
-  isAdmin  Boolean @default(false)
+  isAdmin  Boolean        @default(false)
   claims   Claim[]
-  units    Unit[]
+  units    UsersOnUnits[]
 }
 
 enum ClaimStatus {

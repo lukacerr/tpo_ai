@@ -14,7 +14,7 @@ import { Prisma, User } from '@tpoai/data-commons';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Private } from 'users/auth/private.decorator';
 import { ReqUser } from 'users/auth/req-user.decorator';
-import { FilesReception } from 'utils/files-reception.decorator';
+import { FilesReception } from 'utils/decorators/files-reception.decorator';
 
 @ApiTags('Reclamos')
 @Controller('claims')

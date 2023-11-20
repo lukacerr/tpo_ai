@@ -12,7 +12,6 @@
     "db:push": "npx prisma db push --accept-data-loss",
     "db:gen": "npx prisma generate"
   },
-  "keywords": [],
   "author": "Grupo 3 (2023 2do cuat. martes mañana)",
   "license": "ISC",
   "workspaces": [
@@ -20,6 +19,7 @@
     "web"
   ],
   "devDependencies": {
+    "@types/react-helmet": "^6.1.8",
     "prisma": "^5.3.1"
   },
   "dependencies": {

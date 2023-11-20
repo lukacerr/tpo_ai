@@ -26,6 +26,7 @@ export class BuildingsController {
   }
 
   @ApiOperation({ summary: 'Listar edificios donde estás' })
+  @Private()
   @Get()
   findMany(@ReqUser() user: User) {
     return this.buildingsService.findMany(user);
