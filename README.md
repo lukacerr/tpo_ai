@@ -55,6 +55,8 @@ isAdmin: true;
 
 Con esto ya podremos acceder a la plataforma y trabajar como administrador con el usuario dado.
 
+---
+
 ###### NOTA IMPORTANTE -> TODOs a conciencia
 
 Dando multiples acontecimientos de cara a esta segunda entrega (principalmente demanda en parciales/finales de otras materias así como la situación política y económica actual del país) hay ciertas cosas del frontend que quedaron entre incompletas o sencillamente mal realizadas. A su vez, múltiples funcionalidades quedaron en TODO, tal y como se ve en la sidebar.
