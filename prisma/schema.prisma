@@ -9,11 +9,10 @@ datasource db {
 }
 
 model Unit {
-  id         Int               @id @default(autoincrement())
-  Building   Building          @relation(fields: [buildingId], references: [id], onDelete: Cascade)
+  id         Int            @id @default(autoincrement())
+  Building   Building       @relation(fields: [buildingId], references: [id], onDelete: Cascade)
   buildingId Int
   users      UsersOnUnits[]
-  condition  UnitUserCondition
   code       String
   claims     Claim[]
 }
@@ -24,9 +23,9 @@ enum UnitUserCondition {
 }
 
 model UsersOnUnits {
-  Unit       Unit              @relation(fields: [unitId], references: [id])
+  Unit       Unit              @relation(fields: [unitId], references: [id], onDelete: Cascade)
   unitId     Int
-  User       User              @relation(fields: [userId], references: [id])
+  User       User              @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId     Int
   condition  UnitUserCondition
   assignedAt DateTime          @default(now())
@@ -40,7 +39,7 @@ model Amenity {
   buildingId  Int
   name        String
   description String?
-  floor       Int?
+  floor       String?
   claims      Claim[]
 }
 
@@ -76,6 +75,7 @@ model Claim {
   user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId      Int
   claimStatus ClaimStatus
+  lastMessage String?
   description String
   unit        Unit?       @relation(fields: [unitId], references: [id], onDelete: Cascade)
   unitId      Int?

@@ -12,10 +12,14 @@ export class BuildingsService {
   }
 
   findMany(user: User) {
+    const unitIncludeUsers = { users: { include: { User: true } } };
+
     return this.prisma.building.findMany({
       where: user.isAdmin ? {} : { units: { some: UnitHasUser(user.id) } },
       include: {
-        units: user.isAdmin || { where: UnitHasUser(user.id) },
+        units: user.isAdmin
+          ? { include: unitIncludeUsers }
+          : { where: UnitHasUser(user.id), include: unitIncludeUsers },
         amenities: true,
       },
     });

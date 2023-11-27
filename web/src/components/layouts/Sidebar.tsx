@@ -17,6 +17,7 @@ import { closeSidebar } from '@/utils/sidebar';
 import { Tooltip } from '@mui/joy';
 import ApartmentIcon from '@mui/icons-material/Apartment';
 import { getCurrentUser } from '@/utils/auth';
+import { getInitialsWSurname } from '@/utils/user.utils';
 
 function Toggler({
   defaultExpanded = false,
@@ -49,7 +50,7 @@ function Toggler({
 }
 
 export default function Sidebar() {
-  const { isAdmin } = getCurrentUser();
+  const user = getCurrentUser();
 
   return (
     <Sheet
@@ -109,12 +110,12 @@ export default function Sidebar() {
         onClick={() => closeSidebar()}
       />
       <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-        <Tooltip title="Usuario autenticado: luka.cerrutti">
+        <Tooltip title={`Usuario autenticado: ${user?.username || '-'}`}>
           <IconButton variant="soft" color="primary" size="sm">
             <BrightnessAutoRoundedIcon />
           </IconButton>
         </Tooltip>
-        <Typography level="title-lg">Luka Cerrutti</Typography>
+        <Typography level="title-lg">{getInitialsWSurname(user?.name) || user?.username || '********'}</Typography>
       </Box>
       <Box
         sx={{
@@ -162,18 +163,22 @@ export default function Sidebar() {
               )}
             >
               <List sx={{ gap: 0.5 }}>
-                <ListItem sx={{ mt: 0.5 }}>
-                  <ListItemButton
-                    selected={location.pathname.startsWith('/claim')}
-                    onClick={() => location.replace('/claim')}
-                  >
-                    Generar nuevo
+                {!user?.isAdmin && (
+                  <ListItem sx={{ mt: 0.5 }}>
+                    <ListItemButton
+                      selected={location.pathname.startsWith('/claim')}
+                      onClick={() => location.replace('/claim')}
+                    >
+                      Generar nuevo
+                    </ListItemButton>
+                  </ListItem>
+                )}
+                <ListItem sx={user?.isAdmin ? { gap: 0.5 } : undefined}>
+                  <ListItemButton onClick={() => location.replace(user?.isAdmin ? '/review' : '/panel')}>
+                    Ver existentes
                   </ListItemButton>
                 </ListItem>
-                <ListItem>
-                  <ListItemButton onClick={() => location.replace('/panel')}>Ver existentes</ListItemButton>
-                </ListItem>
-                {isAdmin && (
+                {user?.isAdmin && (
                   <ListItem>
                     <ListItemButton
                       selected={location.pathname.startsWith('/review')}
@@ -204,10 +209,12 @@ export default function Sidebar() {
                 <ListItem sx={{ mt: 0.5 }}>
                   <ListItemButton>[TODO] Ver todos</ListItemButton>
                 </ListItem>
-                <ListItem>
-                  <ListItemButton onClick={() => location.replace('/panel')}>Ver asignados</ListItemButton>
-                </ListItem>
-                {isAdmin && (
+                {!user?.isAdmin && (
+                  <ListItem>
+                    <ListItemButton onClick={() => location.replace('/panel')}>Ver asignados</ListItemButton>
+                  </ListItem>
+                )}
+                {user?.isAdmin && (
                   <>
                     <ListItem>
                       <ListItemButton
@@ -248,7 +255,7 @@ export default function Sidebar() {
                 <ListItem sx={{ mt: 0.5 }}>
                   <ListItemButton>[TODO] Cambiar contraseña</ListItemButton>
                 </ListItem>
-                {isAdmin && (
+                {user?.isAdmin && (
                   <>
                     <ListItemButton
                       selected={location.pathname.startsWith('/register')}

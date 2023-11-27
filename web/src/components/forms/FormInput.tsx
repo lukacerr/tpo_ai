@@ -9,6 +9,7 @@ import {
   Option,
   Select,
   SelectTypeMap,
+  Textarea,
 } from '@mui/joy';
 
 interface IFormInput {
@@ -21,6 +22,11 @@ interface IFormInput {
   labelOptions?: FormLabelTypeMap;
   inputOptions?: InputTypeMap | SelectTypeMap<any>;
   controlOptions?: FormControlTypeMap;
+  onChange?: (v: any) => void;
+  disabled?: boolean;
+  value?: any;
+  multiline?: boolean;
+  minRows?: number;
 }
 
 export default function FormInput({
@@ -33,15 +39,21 @@ export default function FormInput({
   labelOptions,
   inputOptions,
   controlOptions,
+  onChange,
+  disabled,
+  value,
+  multiline,
+  minRows,
 }: React.PropsWithRef<IFormInput>) {
   return (
-    <FormControl {...controlOptions} required={required}>
+    <FormControl disabled={disabled} {...controlOptions} required={required}>
       <FormLabel {...labelOptions}>{label}</FormLabel>
       {selectValues && selectValues.length ? (
         <Select
           {...inputOptions}
           placeholder={placeholder}
           name={name}
+          onChange={onChange ? (_, nv) => onChange(nv) : undefined}
           defaultValue={selectValues.find((v) => v.default)?.value}
         >
           {selectValues.map((sv) => (
@@ -50,8 +62,24 @@ export default function FormInput({
             </Option>
           ))}
         </Select>
+      ) : multiline ? (
+        <Textarea
+          {...inputOptions}
+          minRows={minRows || 3}
+          placeholder={placeholder}
+          name={name}
+          value={value}
+          onChange={onChange ? (e) => onChange(e.target.value) : undefined}
+        />
       ) : (
-        <Input {...inputOptions} placeholder={placeholder} type={type} name={name} />
+        <Input
+          {...inputOptions}
+          placeholder={placeholder}
+          type={type}
+          name={name}
+          value={value}
+          onChange={onChange ? (e) => onChange(e.target.value) : undefined}
+        />
       )}
     </FormControl>
   );

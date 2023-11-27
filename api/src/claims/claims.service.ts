@@ -18,27 +18,27 @@ export class ClaimsService {
     ];
   }
 
-  private validateUserOwnership(
+  private async validateUserOwnership(
     data: Omit<Prisma.ClaimUncheckedCreateInput, 'claimStatus' | 'description'>,
   ) {
-    const orClauses = this.userOrClauseOwnership(data.userId);
+    const orClauses = this.userOrClauseOwnership(Number(data.userId));
 
-    if (data.unitId)
-      this.prisma.unit.findFirstOrThrow({
-        where: { id: data.unitId, ...orClauses[0] },
+    if (Number(data.unitId))
+      await this.prisma.unit.findFirstOrThrow({
+        where: { id: Number(data.unitId), ...UnitHasUser(Number(data.userId)) },
       });
-    else if (data.amenityId)
-      this.prisma.amenity.findFirstOrThrow({
+    else if (Number(data.amenityId))
+      await this.prisma.amenity.findFirstOrThrow({
         where: {
-          id: data.amenityId,
+          id: Number(data.amenityId),
           ...orClauses[1].amenity,
         },
       });
     else throw new UnauthorizedException();
   }
 
-  create(data: Prisma.ClaimUncheckedCreateInput) {
-    this.validateUserOwnership(data);
+  async create(data: Prisma.ClaimUncheckedCreateInput) {
+    await this.validateUserOwnership(data);
     return this.prisma.claim.create({
       data: {
         ...data,
@@ -50,7 +50,21 @@ export class ClaimsService {
   }
 
   findAll() {
-    return this.prisma.claim.findMany();
+    return this.prisma.claim.findMany({
+      include: {
+        user: true,
+        unit: {
+          include: {
+            Building: true,
+          },
+        },
+        amenity: {
+          include: {
+            Building: true,
+          },
+        },
+      },
+    });
   }
 
   findOne(id: number, user: User) {
@@ -59,12 +73,38 @@ export class ClaimsService {
         id,
         OR: user.isAdmin ? [] : this.userOrClauseOwnership(user.id),
       },
+      include: {
+        user: true,
+        unit: {
+          include: {
+            Building: true,
+          },
+        },
+        amenity: {
+          include: {
+            Building: true,
+          },
+        },
+      },
     });
   }
 
   findMany(user: User, query: Prisma.ClaimWhereInput) {
     return this.prisma.claim.findMany({
       where: { ...query, OR: this.userOrClauseOwnership(user.id) },
+      include: {
+        user: true,
+        unit: {
+          include: {
+            Building: true,
+          },
+        },
+        amenity: {
+          include: {
+            Building: true,
+          },
+        },
+      },
     });
   }
 
@@ -72,11 +112,12 @@ export class ClaimsService {
     return this.prisma.claim.update({ where: { id }, data });
   }
 
-  delete(id: number, user: User) {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  delete(id: number, _: User) {
     return this.prisma.claim.delete({
       where: {
-        id,
-        OR: user.isAdmin ? [] : this.userOrClauseOwnership(user.id),
+        id: Number(id),
+        // OR: user.isAdmin ? [] : this.userOrClauseOwnership(user.id),
       },
     });
   }

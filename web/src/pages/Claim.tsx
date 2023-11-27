@@ -4,12 +4,13 @@ import { Alert, Button, Divider, FormControl, Stack, SvgIcon, Typography, styled
 import AssignmentRoundedIcon from '@mui/icons-material/AssignmentRounded';
 import { getCurrentUser } from '@/utils/auth';
 import { FormObj, OnFormSubmission } from '@/utils/eventForm';
-import { Prisma } from '@tpoai/data-commons';
+import { Amenity, Prisma, Unit } from '@tpoai/data-commons';
 import FormInput from '@/components/forms/FormInput';
-import { ChangeEvent, useState } from 'react';
+import { ChangeEvent, useEffect, useState } from 'react';
 import { AxiosError } from 'axios';
 import { PostClaimRequest } from '@/requests/claims.requests';
 import { GetCurrentTime } from '@/utils/datetime';
+import { GetBuildingsRequest } from '@/requests/buildings.requests';
 
 const VisuallyHiddenInput = styled('input')`
   clip: rect(0 0 0 0);
@@ -29,18 +30,61 @@ export default function ClaimPage() {
   const [error, setError] = useState<AxiosError | null>(null);
   const [claimId, setClaimId] = useState<number>(0);
   const [files, setFiles] = useState<FileList | unknown[] | null>([]);
+  const [selections, setSelections] = useState<
+    {
+      value: string;
+      label: string;
+      data: Partial<Unit | Amenity>;
+    }[]
+  >([]);
+
+  useEffect(() => {
+    GetBuildingsRequest().then(({ data }) => {
+      const s: any[] = [];
+      data.forEach((b: any) => {
+        s.push(
+          ...b.units
+            .filter((u: any) => {
+              const uRelation = u.users.find((v: any) => v.userId === user.id);
+              if (!uRelation) return false;
+              if (uRelation.condition === 'OWNED' && u.users.some((v: any) => v.condition !== 'OWNED')) return false;
+              return true;
+            })
+            .map((u: Unit) => ({
+              data: u,
+              value: `unit-${u.id}`,
+              label: `${u.code} (${b.address})`,
+            }))
+        );
+
+        s.push(
+          ...b.amenities.map((a: Amenity) => ({
+            data: a,
+            value: `amenity-${a.id}`,
+            label: `${a.name} (${b.address})`,
+          }))
+        );
+      });
+
+      setSelections(s);
+    });
+  }, [user.id]);
 
   const fileChange = (e: ChangeEvent<HTMLInputElement>) => setFiles(e.target.files);
 
-  const handleSubmit = async (f: FormObj<Prisma.ClaimUncheckedCreateInput>) => {
+  const handleSubmit = async (f: FormObj<any>) => {
+    const id: string | null = (f as any)?.selection[1]?.value;
+    if (!id) return;
+
     setIsLoading(true);
     setError(null);
 
+    console.log(id);
     const form: Prisma.ClaimUncheckedCreateInput = {
       userId: user.id,
       description: f.description.value,
-      unitId: Number(f.unitId?.value) || null,
-      amenityId: Number(f.amenityId?.value) || null,
+      unitId: id.includes('unit') ? Number(id.split('-')[1]) : null,
+      amenityId: id.includes('amenity') ? Number(id.split('-')[1]) : null,
       claimStatus: 'OPEN',
     };
 
@@ -57,15 +101,22 @@ export default function ClaimPage() {
       </Typography>
       <Divider sx={{ marginBlock: 2 }} />
 
-      <form
-        onSubmit={(e) =>
-          OnFormSubmission<Prisma.ClaimUncheckedCreateInput>(e, handleSubmit, { reset: true, preventDefault: true })
-        }
-      >
+      <form onSubmit={(e) => OnFormSubmission<any>(e, handleSubmit, { reset: true, preventDefault: true })}>
         <Stack spacing={1}>
-          <FormInput name="description" label="Descripción" required />
-          <FormInput type="number" name="amenityId" label="ID de la comodidad" />
-          <FormInput type="number" name="unitId" label="ID de la unidad (sobreescribe a la comodidad)" />
+          <FormInput
+            disabled={!!claimId}
+            name="selection"
+            required
+            label="Seleccione comodidad / unidad"
+            selectValues={selections || []}
+          />
+          <FormInput
+            name="description"
+            label="Descripción"
+            required
+            multiline
+            placeholder="Describa el inconveniente aquí..."
+          />
           <FormControl>
             <Button
               component="label"
